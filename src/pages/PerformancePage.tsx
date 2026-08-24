@@ -6,6 +6,7 @@ import {
   lazy,
   Suspense,
   startTransition,
+  useTransition,
   memo,
 } from 'react'
 import {
@@ -15,6 +16,8 @@ import {
   TodoList,
   SimpleVirtualList,
   ExpensiveChart,
+  ExpensiveLeaderboard,
+  buildLeaderboardDataSet,
   useRenderLabel,
 } from '../components/PerfDemos'
 
@@ -43,6 +46,7 @@ function PerformancePage() {
             { t: '⑤ 虚拟列表', d: '长列表只渲染可见区域 DOM', c: '#ec4899' },
             { t: '⑥ React.lazy', d: '代码分包 + 按需加载', c: '#14b8a6' },
             { t: '⑦ startTransition', d: '保持 UI 响应不卡输入框', c: '#06b6d4' },
+            { t: '⑨ useTransition', d: 'startTransition + isPending 骨架屏', c: '#8b5cf6' },
           ].map((x) => (
             <div
               key={x.t}
@@ -69,6 +73,7 @@ function PerformancePage() {
       <VirtualListDemo />
       <LazyLoadDemo />
       <TransitionDemo />
+      <UseTransitionDemo />
       <SuspenseRenderCountDemo />
     </div>
   )
@@ -513,6 +518,209 @@ const TransitionFilterInput = memo(function TransitionFilterInput({
           <div key={x}>{x}</div>
         ))}
       </div>
+    </div>
+  )
+})
+
+// =========================================================
+// ⑨ useTransition — startTransition + isPending 骨架屏
+// =========================================================
+type TabKey = 'daily' | 'weekly' | 'monthly'
+
+const TAB_PRESETS: { key: TabKey; label: string; seed: string; size: number }[] = [
+  { key: 'daily', label: '日榜', seed: 'daily-leaderboard', size: 8000 },
+  { key: 'weekly', label: '周榜', seed: 'weekly-leaderboard-v2', size: 12000 },
+  { key: 'monthly', label: '月榜', seed: 'monthly-leaderboard-final', size: 18000 },
+]
+
+const UseTransitionDemo = memo(function UseTransitionDemo() {
+  const renderTag = useRenderLabel('UseTransition父组件')
+  const [urgentTab, setUrgentTab] = useState<TabKey>('daily')
+  const [transitionTab, setTransitionTab] = useState<TabKey>('daily')
+  const [isPending, startTransitionState] = useTransition()
+  const [clicks, setClicks] = useState(0)
+
+  const urgentData = useMemo(
+    () => {
+      const p = TAB_PRESETS.find((x) => x.key === urgentTab)!
+      return buildLeaderboardDataSet(p.seed, p.size)
+    },
+    [urgentTab]
+  )
+  const transitionData = useMemo(
+    () => {
+      const p = TAB_PRESETS.find((x) => x.key === transitionTab)!
+      return buildLeaderboardDataSet(p.seed, p.size)
+    },
+    [transitionTab]
+  )
+
+  const handleUrgentClick = (key: TabKey) => {
+    setUrgentTab(key)
+    setClicks((c) => c + 1)
+  }
+  const handleTransitionClick = (key: TabKey) => {
+    startTransitionState(() => {
+      setTransitionTab(key)
+    })
+    setClicks((c) => c + 1)
+  }
+
+  return (
+    <div className="card">
+      <h3 style={{ color: '#8b5cf6' }}>
+        ⑨ useTransition — isPending 驱动骨架屏，切大报表不丢响应
+      </h3>
+      <p className="info-text" style={{ marginTop: 0 }}>
+        <code>useTransition</code> = <code>startTransition</code> + <code>isPending</code> 信号。
+        和 ⑦ 的区别是：你可以用 <code>isPending</code> 在过渡期间<strong>显示骨架屏 / 禁用按钮 / 降低透明度</strong>，
+        而用户在计算过程中依然能点按钮（React 会合并/打断旧的过渡）。
+      </p>
+      <div style={{ marginBottom: '0.75rem' }}>
+        {renderTag}
+        <span className="tag" style={{ marginLeft: '0.5rem' }}>
+          总点击次数 = {clicks}
+        </span>
+        <span className="info-text" style={{ marginLeft: '0.75rem', fontSize: '0.85rem' }}>
+          💡 快速连点三个 tab，对比两侧按钮释放速度和骨架屏表现。
+        </span>
+      </div>
+
+      <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ border: '1px solid #f59e0b', borderRadius: '8px', padding: '0.75rem' }}>
+          <h4 style={{ margin: '0 0 0.5rem 0', color: '#fbbf24' }}>
+            ❌ 普通 setState：切换时整页卡住
+          </h4>
+          <p className="info-text" style={{ marginTop: 0 }}>
+            点 tab 后按钮按下态迟迟不释放，连点的话所有点击排队，渲染量 = 点击次数 × 单次开销。
+          </p>
+          <div style={{ marginBottom: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+            {TAB_PRESETS.map((p) => (
+              <button
+                key={p.key}
+                className={urgentTab === p.key ? 'primary' : ''}
+                onClick={() => handleUrgentClick(p.key)}
+              >
+                {urgentTab === p.key ? '● ' : '○ '}
+                {p.label}（{p.size.toLocaleString()}条）
+              </button>
+            ))}
+          </div>
+          <ExpensiveLeaderboard
+            title={`❌ 紧急渲染 · ${TAB_PRESETS.find((x) => x.key === urgentTab)!.label}`}
+            data={urgentData}
+          />
+        </div>
+
+        <div style={{ border: '1px solid #8b5cf6', borderRadius: '8px', padding: '0.75rem' }}>
+          <h4 style={{ margin: '0 0 0.5rem 0', color: '#a78bfa' }}>
+            ✅ useTransition：isPending 显示骨架，可被打断
+          </h4>
+          <p className="info-text" style={{ marginTop: 0 }}>
+            切 tab 瞬间按钮先高亮（紧急 state 已更新），<code>isPending=true</code> 显示骨架，
+            算完再替换。中途再点别的 tab 会让<strong>上一次过渡被打断作废</strong>，不做无用功。
+          </p>
+          <div style={{ marginBottom: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+            {TAB_PRESETS.map((p) => (
+              <button
+                key={p.key}
+                className={transitionTab === p.key ? 'primary' : ''}
+                onClick={() => handleTransitionClick(p.key)}
+                disabled={isPending}
+                style={{ opacity: isPending && transitionTab !== p.key ? 0.55 : 1 }}
+              >
+                {transitionTab === p.key ? (isPending ? '⏳ ' : '● ') : '○ '}
+                {p.label}（{p.size.toLocaleString()}条）
+              </button>
+            ))}
+          </div>
+          {isPending ? (
+            <div
+              style={{
+                border: '1px solid #8b5cf655',
+                borderRadius: '8px',
+                padding: '0.75rem',
+                backgroundColor: '#8b5cf60d',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '0.5rem',
+                }}
+              >
+                <h5 style={{ margin: 0, color: '#a78bfa' }}>⏳ 骨架屏 · isPending=true</h5>
+                <span className="tag" style={{ color: '#a78bfa', borderColor: '#a78bfa' }}>
+                  过渡中...
+                </span>
+              </div>
+              <p className="info-text" style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem' }}>
+                useTransition 正在后台计算下一个 tab 的数据，<strong>你现在依然能点其他按钮</strong>。
+              </p>
+              <div
+                style={{
+                  height: 200,
+                  overflow: 'hidden',
+                  background:
+                    'repeating-linear-gradient(180deg, rgba(139,92,246,0.10) 0 28px, rgba(139,92,246,0.04) 28px 36px)',
+                  borderRadius: '6px',
+                  position: 'relative',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background:
+                      'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
+                    animation: 'skeleton-shimmer 1.2s linear infinite',
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <ExpensiveLeaderboard
+              title={`✅ 过渡渲染 · ${TAB_PRESETS.find((x) => x.key === transitionTab)!.label}`}
+              data={transitionData}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="code-block" style={{ marginTop: '1rem' }}>
+        <pre style={{ margin: 0 }}>{`// ✅ useTransition = startTransition + isPending 信号
+const [isPending, startTransition] = useTransition()
+const [tab, setTab] = useState('daily')
+const [data, setData] = useState(initialData)
+
+function switchTab(next) {
+  // 1) setState 标记"正在算下一个"，可显示骨架/禁用按钮
+  // 2) 过渡期间若再触发 -> 旧过渡作废，避免浪费
+  startTransition(() => {
+    setTab(next)                          // 非紧急：晚点更新没关系
+    setData(buildLeaderboardDataSet(next)) // 昂贵计算包在同一个过渡里
+  })
+}
+
+return (
+  <>
+    <TabBar isLoading={isPending} />
+    {isPending ? <Skeleton /> : <BigTable data={data} />}
+  </>
+)
+
+// ⚠️ 和 startTransition 的区别：
+// startTransition()         -> 只包裹动作，不知道"进行中"
+// useTransition()[isPending] -> 额外给一个信号量驱动 UI 状态`}</pre>
+      </div>
+
+      <style>{`
+        @keyframes skeleton-shimmer {
+          0%   { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   )
 })

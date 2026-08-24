@@ -229,9 +229,10 @@ export function SimpleVirtualList({ items, itemHeight, height }: SimpleVirtualLi
 export const ExpensiveChart = memo(
   forwardRef<HTMLDivElement, { label: string; onReady?: (el: HTMLDivElement) => void }>(
     function ExpensiveChart({ label, onReady }, ref) {
-      const t0 = performance.now()
-      // 模拟昂贵计算：生成 3000 个 DOM 点
+      // 模拟昂贵计算：生成 1500 个 DOM 点；计时写在 useMemo 回调内部才能测到真实计算耗时
+      const calcMsRef = useRef(0)
       const dots = useMemo(() => {
+        const t0 = performance.now()
         const arr: { x: number; y: number; c: string }[] = []
         for (let i = 0; i < 1500; i++) {
           arr.push({
@@ -240,9 +241,10 @@ export const ExpensiveChart = memo(
             c: `hsl(${Math.floor(Math.random() * 360)},70%,60%)`,
           })
         }
+        calcMsRef.current = performance.now() - t0
         return arr
       }, [])
-      const calcMs = performance.now() - t0
+      const calcMs = calcMsRef.current
       const [readyReported, setReadyReported] = useState(false)
       useEffect(() => {
         if (onReady && !readyReported && ref && typeof ref !== 'function' && ref.current) {
@@ -291,3 +293,121 @@ export const ExpensiveChart = memo(
     }
   )
 )
+
+// ===================== ⑥ 配合 useTransition 教学：故意渲染慢的排行榜组件 =====================
+export interface LeaderboardRow {
+  rank: number
+  name: string
+  score: number
+  growth: number
+}
+
+export function buildLeaderboardDataSet(seed: string, size = 8000): LeaderboardRow[] {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) | 0
+  const rand = () => {
+    hash = (hash * 1103515245 + 12345) & 0x7fffffff
+    return hash / 0x7fffffff
+  }
+  const names = ['Alice', 'Bob', 'Carol', 'David', 'Eve', 'Frank', 'Grace', 'Henry', 'Ivy', 'Jack']
+  const arr: LeaderboardRow[] = []
+  for (let i = 0; i < size; i++) {
+    arr.push({
+      rank: i + 1,
+      name: `${names[Math.floor(rand() * names.length)]}_${Math.floor(rand() * 10000)}`,
+      score: Math.floor(rand() * 10_000_000),
+      growth: rand() * 200 - 100,
+    })
+  }
+  return arr
+}
+
+interface ExpensiveLeaderboardProps {
+  data: LeaderboardRow[]
+  title: string
+}
+
+export const ExpensiveLeaderboard = memo(function ExpensiveLeaderboard({
+  data,
+  title,
+}: ExpensiveLeaderboardProps) {
+  const t0 = performance.now()
+
+  const rows = useMemo(() => {
+    const sorted = [...data].sort((a, b) => b.score - a.score)
+    const withTier = sorted.map((r, idx) => ({
+      ...r,
+      displayRank: idx + 1,
+      tier:
+        idx < Math.ceil(sorted.length * 0.1)
+          ? 'S'
+          : idx < Math.ceil(sorted.length * 0.3)
+          ? 'A'
+          : idx < Math.ceil(sorted.length * 0.6)
+          ? 'B'
+          : 'C',
+      scoreFormatted: r.score.toLocaleString('zh-CN'),
+      growthPct: `${r.growth >= 0 ? '+' : ''}${r.growth.toFixed(2)}%`,
+    }))
+    const filtered = withTier.filter((r) => r.score > 1000)
+    void filtered.reduce((acc, r) => acc + r.score, 0)
+    return withTier.slice(0, 60)
+  }, [data])
+
+  const renderTag = useRenderLabel('排行榜组件')
+  const cost = performance.now() - t0
+
+  return (
+    <div style={{ border: '1px solid #334155', borderRadius: '8px', padding: '0.75rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <h5 style={{ margin: 0, color: '#94a3b8' }}>{title}</h5>
+        {renderTag}
+      </div>
+      <p className="info-text" style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem' }}>
+        数据预处理+渲染耗时：<strong>{cost.toFixed(2)} ms</strong> · 共{' '}
+        {data.length.toLocaleString()} 条，展示前 {rows.length} 条
+      </p>
+      <div
+        style={{
+          height: 200,
+          overflow: 'auto',
+          fontSize: '0.8rem',
+          fontFamily: 'monospace',
+        }}
+      >
+        {rows.map((r) => (
+          <div
+            key={`${r.displayRank}-${r.name}`}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '40px 1fr 100px 80px 40px',
+              gap: '0.5rem',
+              padding: '2px 4px',
+              borderBottom: '1px dashed #1e293b',
+            }}
+          >
+            <span>#{r.displayRank}</span>
+            <span>{r.name}</span>
+            <span>{r.scoreFormatted}</span>
+            <span style={{ color: r.growth >= 0 ? '#4ade80' : '#f87171' }}>{r.growthPct}</span>
+            <span
+              style={{
+                color:
+                  r.tier === 'S'
+                    ? '#f472b6'
+                    : r.tier === 'A'
+                    ? '#fbbf24'
+                    : r.tier === 'B'
+                    ? '#60a5fa'
+                    : '#94a3b8',
+                fontWeight: 600,
+              }}
+            >
+              {r.tier}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+})
