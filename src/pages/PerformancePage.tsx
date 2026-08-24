@@ -77,7 +77,7 @@ function PerformancePage() {
 // =========================================================
 // ① React.memo
 // =========================================================
-function MemoDemo() {
+const MemoDemo = memo(function MemoDemo() {
   const [relevant, setRelevant] = useState(0)
   const [irrelevant, setIrrelevant] = useState(0)
   const renderTag = useRenderLabel('📦 MemoDemo父组件')
@@ -123,12 +123,12 @@ function MemoDemo() {
       </div>
     </div>
   )
-}
+})
 
 // =========================================================
 // ② useCallback：稳定函数引用配合 memo
 // =========================================================
-function UseCallbackDemo() {
+const UseCallbackDemo = memo(function UseCallbackDemo() {
   const [count, setCount] = useState(0)
   const [input, setInput] = useState('')
   const renderTag = useRenderLabel('UseCallback父组件')
@@ -169,13 +169,13 @@ function UseCallbackDemo() {
       </p>
     </div>
   )
-}
+})
 
 // =========================================================
 // ③ useMemo：缓存昂贵计算
 // =========================================================
-function UseMemoExpensiveCalc() {
-  const [size, setSize] = useState(800000)
+const UseMemoExpensiveCalc = memo(function UseMemoExpensiveCalc() {
+  const [size, setSize] = useState(500000)
   const [keyword, setKeyword] = useState('')
   const [forceTick, setForceTick] = useState(0)
 
@@ -186,12 +186,11 @@ function UseMemoExpensiveCalc() {
   }, [size])
 
   const t1 = performance.now()
-  const unsortedTop10 = arr.slice(0, 10)
-  void unsortedTop10.length
+  const sortedTop10Naive = [...arr].sort((a, b) => a - b).slice(0, 10)
   const naiveMs = performance.now() - t1
 
   const t2 = performance.now()
-  const sortedTop10 = useMemo(() => {
+  const sortedTop10Memo = useMemo(() => {
     return [...arr].sort((a, b) => a - b).slice(0, 10)
   }, [arr])
   const memoMs = performance.now() - t2
@@ -208,13 +207,13 @@ function UseMemoExpensiveCalc() {
           onChange={(e) => setSize(Number(e.target.value))}
           style={{ padding: '0.35rem 0.5rem', borderRadius: '6px' }}
         >
-          <option value={200000}>20万</option>
+          <option value={100000}>10万</option>
+          <option value={300000}>30万</option>
           <option value={500000}>50万</option>
           <option value={800000}>80万</option>
-          <option value={1200000}>120万</option>
         </select>
         <input
-          placeholder="不相关输入：强制父组件重渲染"
+          placeholder="不相关输入：强制父组件重渲染（❌ 侧会明显卡顿）"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
@@ -224,32 +223,37 @@ function UseMemoExpensiveCalc() {
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div style={{ border: '1px solid #f59e0b', borderRadius: '8px', padding: '0.75rem' }}>
           <h4 style={{ margin: 0, color: '#fbbf24' }}>
-            ❌ 每次渲染都计算（模拟）
+            ❌ 每次渲染都排序（真实耗时）
           </h4>
-          <p className="info-text">（此处以轻量 slice 代替 sort，仅对比耗时意义）</p>
+          <p className="info-text">
+            对 {size.toLocaleString()} 条数据执行 sort + slice，每帧重算。
+            输入文字 / 点 forceTick 会明显感觉到输入框卡顿。
+          </p>
           <p>
             本帧耗时：
             <span style={{ color: '#fbbf24', fontSize: '1.15rem' }}> {naiveMs.toFixed(3)} ms</span>
           </p>
-          <p className="info-text">Top10：{unsortedTop10.join(', ')}</p>
+          <p className="info-text">Top10 最小：{sortedTop10Naive.join(', ')}</p>
         </div>
 
         <div style={{ border: '1px solid #22c55e', borderRadius: '8px', padding: '0.75rem' }}>
           <h4 style={{ margin: 0, color: '#4ade80' }}>
-            ✅ useMemo([arr]) — 依赖不变直接复用
+            ✅ useMemo([arr]) — 依赖不变直接复用缓存
           </h4>
-          <p className="info-text">点击 🔄 forceTick 或输入关键词：本块耗时 ≈ 0ms</p>
+          <p className="info-text">
+            首次计算一次后，点击 🔄 forceTick 或输入关键词：本块耗时 ≈ 0ms，UI 依然流畅。
+          </p>
           <p>
             本帧耗时：
             <span style={{ color: '#4ade80', fontSize: '1.15rem' }}> {memoMs.toFixed(3)} ms</span>
           </p>
-          <p className="info-text">Top10 最小：{sortedTop10.join(', ')}</p>
+          <p className="info-text">Top10 最小：{sortedTop10Memo.join(', ')}</p>
         </div>
       </div>
 
       <div className="code-block" style={{ marginTop: '1rem' }}>
         <pre style={{ margin: 0 }}>
-{`// ✅ 缓存昂贵计算
+          {`// ✅ 缓存昂贵计算
 const sorted = useMemo(() =>
   [...arr].sort((a,b)=>a-b).slice(0,10)
 , [arr])       // arr 不变，上面不重算
@@ -265,12 +269,12 @@ const doubled = useMemo(() => count * 2, [count])
       </div>
     </div>
   )
-}
+})
 
 // =========================================================
 // ④ 列表 key 对 diff 的影响
 // =========================================================
-function ListKeyDemo() {
+const ListKeyDemo = memo(function ListKeyDemo() {
   const [todos, setTodos] = useState([
     { id: 'a', text: '① 写 Bug', done: false },
     { id: 'b', text: '② 修 Bug', done: true },
@@ -337,7 +341,7 @@ function ListKeyDemo() {
       </p>
     </div>
   )
-}
+})
 
 // =========================================================
 // ⑤ 虚拟列表：10万行但只渲染可视 DOM
@@ -347,7 +351,7 @@ const BIG_LIST = Array.from(
   (_, i) => `Item #${i} demo item ${'★'.repeat((i % 5) + 1)}`
 )
 
-function VirtualListDemo() {
+const VirtualListDemo = memo(function VirtualListDemo() {
   return (
     <div className="card">
       <h3 style={{ color: '#ec4899' }}>
@@ -361,12 +365,12 @@ function VirtualListDemo() {
       <SimpleVirtualList items={BIG_LIST} itemHeight={36} height={320} />
     </div>
   )
-}
+})
 
 // =========================================================
 // ⑥ React.lazy + Suspense 代码分包加载
 // =========================================================
-function LazyLoadDemo() {
+const LazyLoadDemo = memo(function LazyLoadDemo() {
   const [showHeavy, setShowHeavy] = useState(false)
   const [loadedAt, setLoadedAt] = useState<number | null>(null)
   const triggerClick = () => {
@@ -414,12 +418,12 @@ function LazyLoadDemo() {
       )}
     </div>
   )
-}
+})
 
 // =========================================================
 // ⑦ startTransition — 紧急更新 vs 过渡更新
 // =========================================================
-function TransitionDemo() {
+const TransitionDemo = memo(function TransitionDemo() {
   const [keyword, setKeyword] = useState('')
   const [deferred, setDeferred] = useState('')
 
@@ -458,7 +462,7 @@ function TransitionDemo() {
       />
     </div>
   )
-}
+})
 
 interface FilterInputProps {
   keyword: string
@@ -516,7 +520,7 @@ const TransitionFilterInput = memo(function TransitionFilterInput({
 // =========================================================
 // ⑧ ExpensiveChart 综合观察 memo/useMemo
 // =========================================================
-function SuspenseRenderCountDemo() {
+const SuspenseRenderCountDemo = memo(function SuspenseRenderCountDemo() {
   const [label, setLabel] = useState('A')
   const [other, setOther] = useState(0)
   const renderTag = useRenderLabel('Suspense父组件')
@@ -539,7 +543,7 @@ function SuspenseRenderCountDemo() {
       <ExpensiveChart label={label} />
     </div>
   )
-}
+})
 
 // 引用 useEffect 占位（保留未来扩展可能，避免无用导入检查告警）
 void useEffect
