@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Local npm cache (used when installing with an in-workspace --cache)
+.npm-cache/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

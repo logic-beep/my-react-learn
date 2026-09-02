@@ -43,6 +43,12 @@ function App() {
           ⚡ 性能优化
         </NavLink>
         <NavLink
+          to="/fiber"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          🧬 React 内核
+        </NavLink>
+        <NavLink
           to="/counter"
           className={({ isActive }) => (isActive ? 'active' : '')}
         >

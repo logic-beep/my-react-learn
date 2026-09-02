@@ -9,6 +9,7 @@ import AboutPage from '../pages/AboutPage'
 import BasicHooksPage from '../pages/BasicHooksPage'
 import ComponentCommunicationPage from '../pages/ComponentCommunicationPage'
 import PerformancePage from '../pages/PerformancePage'
+import ReactFiberPage from '../pages/ReactFiberPage'
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
 
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
       {
         path: 'performance',
         element: <PerformancePage />,
+      },
+      {
+        path: 'fiber',
+        element: <ReactFiberPage />,
       },
       {
         path: 'counter',

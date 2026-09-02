@@ -1,4 +1,172 @@
 import { Link } from 'react-router-dom'
+import { SourceCode } from '../components/SourceCode'
+
+// -----------------------------------------------------
+// React Router 知识点对应源码快照（路由表 / 导航壳 / 404 页）：
+// 对应真实文件：src/router/index.tsx、src/App.tsx、src/pages/NotFoundPage.tsx，
+// 供下方「🛣️ React Router 核心用法」卡片底部「查看源码」折叠块展示。
+// ⚠️ 若修改了上述任一真实源码文件，请同步更新这里的字符串内容。
+// -----------------------------------------------------
+const ABOUT_ROUTER_SOURCE = `// ─── 完整源码：src/router/index.tsx ───
+// ===== src/router/index.tsx =====
+import { createBrowserRouter } from 'react-router-dom'
+import App from '../App'
+import HomePage from '../pages/HomePage'
+import CounterPage from '../pages/CounterPage'
+import HooksPage from '../pages/HooksPage'
+import UserPage from '../pages/UserPage'
+import NotFoundPage from '../pages/NotFoundPage'
+import AboutPage from '../pages/AboutPage'
+import BasicHooksPage from '../pages/BasicHooksPage'
+import ComponentCommunicationPage from '../pages/ComponentCommunicationPage'
+import PerformancePage from '../pages/PerformancePage'
+
+const basename = import.meta.env.BASE_URL.replace(/\\/$/, '')
+
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: 'basic-hooks',
+        element: <BasicHooksPage />,
+      },
+      {
+        path: 'hooks',
+        element: <HooksPage />,
+      },
+      {
+        path: 'communication',
+        element: <ComponentCommunicationPage />,
+      },
+      {
+        path: 'performance',
+        element: <PerformancePage />,
+      },
+      {
+        path: 'counter',
+        element: <CounterPage />,
+      },
+      {
+        path: 'user',
+        element: <UserPage />,
+      },
+      {
+        path: 'about',
+        element: <AboutPage />,
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
+      },
+    ],
+  },
+], {
+  basename,
+})
+// ─── 完整源码：src/App.tsx ───
+// ===== src/App.tsx =====
+import { NavLink, Outlet } from 'react-router-dom'
+
+function App() {
+  return (
+    <div>
+      <h1 style={{ textAlign: 'center', color: '#646cff' }}>
+        React 学习工程 🚀
+      </h1>
+      <p style={{ textAlign: 'center', color: '#888', marginBottom: '2rem' }}>
+        Vite + React + TypeScript + Redux + React Router
+      </p>
+
+      <nav>
+        <NavLink
+          to="/"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+          end
+        >
+          🏠 首页
+        </NavLink>
+        <NavLink
+          to="/basic-hooks"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          🧠 基础 Hooks
+        </NavLink>
+        <NavLink
+          to="/hooks"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          🪝 自定义 Hooks
+        </NavLink>
+        <NavLink
+          to="/communication"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          📢 组件交互
+        </NavLink>
+        <NavLink
+          to="/performance"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          ⚡ 性能优化
+        </NavLink>
+        <NavLink
+          to="/counter"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          🔢 Redux 计数器
+        </NavLink>
+        <NavLink
+          to="/user"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          👤 用户管理
+        </NavLink>
+        <NavLink
+          to="/about"
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          📖 关于
+        </NavLink>
+      </nav>
+
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  )
+}
+
+export default App
+// ─── 完整源码：src/pages/NotFoundPage.tsx ───
+// ===== src/pages/NotFoundPage.tsx =====
+import { Link, useNavigate } from 'react-router-dom'
+
+function NotFoundPage() {
+  const navigate = useNavigate()
+
+  return (
+    <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+      <div style={{ fontSize: '8rem', margin: 0, color: '#646cff' }}>404</div>
+      <h2>页面未找到</h2>
+      <p className="info-text" style={{ marginBottom: '2rem' }}>
+        抱歉，您访问的页面不存在
+      </p>
+      <Link to="/">
+        <button className="primary">🏠 返回首页</button>
+      </Link>
+      <button onClick={() => navigate(-1)}>⬅️ 返回上一页</button>
+    </div>
+  )
+}
+
+export default NotFoundPage
+`
 
 function AboutPage() {
   return (
@@ -41,6 +209,10 @@ function AboutPage() {
             <button>🔗 试试访问不存在的页面 →</button>
           </Link>
         </p>
+        <SourceCode
+          label="React Router 知识点对应代码（router/index.tsx + App.tsx + NotFoundPage.tsx）"
+          code={ABOUT_ROUTER_SOURCE}
+        />
       </div>
 
       <div className="card">

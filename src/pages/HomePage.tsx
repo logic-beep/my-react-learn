@@ -50,6 +50,15 @@ function HomePage() {
         </div>
 
         <div className="card">
+          <h3>🧬 React 内核原理</h3>
+          <p>虚拟 DOM / Diff 算法 / Fiber 架构 / setState 全流程</p>
+          <p className="info-text">从状态变更到像素落地，可视化讲透 React 内部</p>
+          <Link to="/fiber">
+            <button className="primary">进入示例 →</button>
+          </Link>
+        </div>
+
+        <div className="card">
           <h3>🪝 自定义 Hooks</h3>
           <p>
             useCounter、useLocalStorage、useDebounce、useFetch、useToggle
