@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react'
 import { SourceCode } from '../components/SourceCode'
+import { CodeBlock } from '../components/CodeBlock'
 
 function BasicHooksPage() {
   return (
@@ -116,9 +117,7 @@ function UseStateDemo() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>
-{`// 基本用法
+      <CodeBlock code={`// 基本用法
 const [count, setCount] = useState(0)
 setCount(count + 1)
 setCount(prev => prev + 1)  // 函数式更新，依赖旧值时推荐
@@ -126,9 +125,7 @@ setCount(prev => prev + 1)  // 函数式更新，依赖旧值时推荐
 // 对象状态 - 必须展开旧对象再覆盖（不可变更新）
 const [user, setUser] = useState({ name: '', age: 0 })
 setUser({ ...user, name: '新名字' })  // ❌ 漏掉 age 会丢失
-setUser(prev => ({ ...prev, age: prev.age + 1 }))  // ✅ 函数式更安全`}
-        </pre>
-      </div>
+setUser(prev => ({ ...prev, age: prev.age + 1 }))  // ✅ 函数式更安全`} language="typescript" style={{ marginTop: '1rem' }} />
 
       <SourceCode label="UseStateDemo（1️⃣ useState 示例）" code={USESTATE_DEMO_SOURCE} />
     </div>
@@ -269,9 +266,7 @@ function UseEffectDemo() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>
-{`// ① 无依赖数组：每次渲染都执行（慎用！）
+      <CodeBlock code={`// ① 无依赖数组：每次渲染都执行（慎用！）
 useEffect(() => { console.log('每次渲染后') })
 
 // ② 空数组 []：只在挂载时执行1次，卸载时清理
@@ -284,9 +279,7 @@ useEffect(() => {
 useEffect(() => {
   const timer = setTimeout(() => search(keyword), 500)
   return () => clearTimeout(timer)  // 下次执行前先清理
-}, [keyword])`}
-        </pre>
-      </div>
+}, [keyword])`} language="typescript" style={{ marginTop: '1rem' }} />
 
       <SourceCode label="UseEffectDemo（2️⃣ useEffect 示例）" code={USEEFFECT_DEMO_SOURCE} />
     </div>
@@ -444,9 +437,7 @@ function UseCallbackDemo() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>
-{`// ✅ 推荐场景：传给 memo 子组件的回调
+      <CodeBlock code={`// ✅ 推荐场景：传给 memo 子组件的回调
 const handleAdd = useCallback((item) => {
   setList(prev => [...prev, item])
 }, [])  // 依赖为空 → 函数引用永远不变
@@ -457,9 +448,7 @@ const Child = memo(function Child({ onAdd }) {
 
 // ❌ 不要乱用：本地事件处理函数没必要
 const handleClick = useCallback(() => setN(n+1), [n])
-// ↑ 直接写普通函数更简单，因为 n 一变函数引用也得变`}
-        </pre>
-      </div>
+// ↑ 直接写普通函数更简单，因为 n 一变函数引用也得变`} language="typescript" style={{ marginTop: '1rem' }} />
 
       <SourceCode label="UseCallbackDemo（3️⃣ useCallback 示例）" code={USECALLBACK_DEMO_SOURCE} />
     </div>
@@ -640,9 +629,7 @@ function UseMemoDemo() {
       </p>
       <p>前5个元素 × 2 = [{doubled.join(', ')}]</p>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>
-{`// 只在 list 或 filter 变化时重新计算
+      <CodeBlock code={`// 只在 list 或 filter 变化时重新计算
 const filtered = useMemo(() => {
   return list.filter(n => n > threshold).sort((a, b) => a - b)
 }, [list, threshold])
@@ -651,9 +638,7 @@ const filtered = useMemo(() => {
 const sortedUsers = useMemo(() => [...users].sort(), [users])
 <MemoizedTable data={sortedUsers} />  // 引用不变就不重渲染
 
-// ❌ 别滥用：简单运算（如 n*2）不需要 memo，memo 本身有开销`}
-        </pre>
-      </div>
+// ❌ 别滥用：简单运算（如 n*2）不需要 memo，memo 本身有开销`} language="typescript" style={{ marginTop: '1rem' }} />
 
       <SourceCode label="UseMemoDemo（4️⃣ useMemo 示例）" code={USEMEMO_DEMO_SOURCE} />
     </div>
@@ -789,9 +774,7 @@ function UseRefDemo() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>
-{`// ① DOM 引用
+      <CodeBlock code={`// ① DOM 引用
 const inputRef = useRef<HTMLInputElement>(null)
 <input ref={inputRef} />
 inputRef.current?.focus()
@@ -805,9 +788,7 @@ const timerRef = useRef<NodeJS.Timeout | null>(null)
 useEffect(() => {
   timerRef.current = setInterval(...)
   return () => clearInterval(timerRef.current!)
-}, [])`}
-        </pre>
-      </div>
+}, [])`} language="typescript" style={{ marginTop: '1rem' }} />
 
       <SourceCode label="UseRefDemo（5️⃣ useRef 示例）" code={USEREF_DEMO_SOURCE} />
     </div>

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useRenderLabel } from '../components/PerfDemos'
 import { SourceCode } from '../components/SourceCode'
+import { CodeBlock } from '../components/CodeBlock'
 
 function ReactFiberPage() {
   return (
@@ -200,14 +201,16 @@ function VirtualDOMDemo() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <strong style={{ color: '#fbbf24' }}>💡 关键结论：</strong>
-        <ul style={{ margin: '0.5rem 0 0 1.25rem', padding: 0 }}>
-          <li>JSX 只是语法糖，编译后 = <code>React.createElement()</code> = 返回虚拟 DOM 对象</li>
-          <li>有了对象化描述，跨平台就简单了：React DOM / React Native / SSR 只是 <em>宿主不同</em></li>
-          <li>Diff 是 <strong>「两棵对象树的比较」</strong>，不是直接操作浏览器 DOM</li>
-        </ul>
-      </div>
+      <CodeBlock
+        code={`<strong style={{ color: '#fbbf24' }}>💡 关键结论：</strong>
+<ul style={{ margin: '0.5rem 0 0 1.25rem', padding: 0 }}>
+  <li>JSX 只是语法糖，编译后 = <code>React.createElement()</code> = 返回虚拟 DOM 对象</li>
+  <li>有了对象化描述，跨平台就简单了：React DOM / React Native / SSR 只是 <em>宿主不同</em></li>
+  <li>Diff 是 <strong>「两棵对象树的比较」</strong>，不是直接操作浏览器 DOM</li>
+</ul>`}
+        language="typescript"
+        style={{ marginTop: '1rem' }}
+      />
 
       <SourceCode label="虚拟 DOM 对象结构示意" code={VDOM_DEMO_SOURCE} />
     </div>
@@ -824,15 +827,17 @@ function SetStateFlowDemo() {
           >
             🧹 清空日志
           </button>
-          <div className="code-block" style={{ marginTop: '0.85rem' }}>
-            <div style={{ fontSize: '0.8rem' }}>
-              <strong style={{ color: '#fbbf24' }}>当前 count：</strong>
-              <span className="tag">{count}</span>
-            </div>
-            <p className="info-text" style={{ fontSize: '0.8rem', margin: '0.4rem 0 0 0' }}>
-              每次重新渲染 = 函数组件重新执行 = 生成一个新的 UI 快照
-            </p>
-          </div>
+          <CodeBlock
+            code={`<div style={{ fontSize: '0.8rem' }}>
+  <strong style={{ color: '#fbbf24' }}>当前 count：</strong>
+  <span className="tag">{count}</span>
+</div>
+<p className="info-text" style={{ fontSize: '0.8rem', margin: '0.4rem 0 0 0' }}>
+  每次重新渲染 = 函数组件重新执行 = 生成一个新的 UI 快照
+</p>`}
+            language="typescript"
+            style={{ marginTop: '0.85rem' }}
+          />
         </div>
 
         <div
@@ -885,19 +890,18 @@ function SetStateFlowDemo() {
         </div>
       </div>
 
-      <div
-        className="code-block"
+      <CodeBlock
+        code={`<strong style={{ color: '#f59e0b' }}>🔑 要点速记（面试高频）</strong>
+<ol style={{ margin: '0.5rem 0 0 1.25rem', padding: 0 }}>
+  <li><strong>Render 阶段</strong>（可中断，纯计算）：<code>beginWork → completeWork</code>，产出 effect 链表</li>
+  <li><strong>Commit 阶段</strong>（不可中断，有副作用）：<code>beforeMutation → mutation → layout</code> 三段</li>
+  <li><strong>useEffect</strong> 在 layout 之后异步触发（微任务，不阻塞绘制）；<strong>useLayoutEffect</strong> 在 layout 同步触发（可阻塞绘制）</li>
+  <li><strong>批量更新</strong>：同一事件循环内连续多次 setState，只触发一次渲染；React 18 自动批量化（含 setTimeout/Promise）</li>
+  <li><strong>为什么 State 不直接改？</strong> —— 保证函数组件的「快照语义」：每个渲染里 state/props 都是不可变的</li>
+</ol>`}
+        language="typescript"
         style={{ marginTop: '1rem', border: '1px solid #f59e0b55', backgroundColor: '#f59e0b0a' }}
-      >
-        <strong style={{ color: '#f59e0b' }}>🔑 要点速记（面试高频）</strong>
-        <ol style={{ margin: '0.5rem 0 0 1.25rem', padding: 0 }}>
-          <li><strong>Render 阶段</strong>（可中断，纯计算）：<code>beginWork → completeWork</code>，产出 effect 链表</li>
-          <li><strong>Commit 阶段</strong>（不可中断，有副作用）：<code>beforeMutation → mutation → layout</code> 三段</li>
-          <li><strong>useEffect</strong> 在 layout 之后异步触发（微任务，不阻塞绘制）；<strong>useLayoutEffect</strong> 在 layout 同步触发（可阻塞绘制）</li>
-          <li><strong>批量更新</strong>：同一事件循环内连续多次 setState，只触发一次渲染；React 18 自动批量化（含 setTimeout/Promise）</li>
-          <li><strong>为什么 State 不直接改？</strong> —— 保证函数组件的「快照语义」：每个渲染里 state/props 都是不可变的</li>
-        </ol>
-      </div>
+      />
 
       <SourceCode label="setState 完整时间线伪代码" code={SETSTATE_FLOW_SOURCE} />
     </div>

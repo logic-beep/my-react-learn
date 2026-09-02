@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SourceCode } from '../components/SourceCode'
+import { CodeBlock } from '../components/CodeBlock'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
   increment,
@@ -117,9 +118,7 @@ function CounterPage() {
         <p>
           <strong>1. 创建 Slice (counterSlice.ts)</strong>
         </p>
-        <div className="code-block">
-          <pre style={{ margin: 0 }}>
-{`const counterSlice = createSlice({
+        <CodeBlock code={`const counterSlice = createSlice({
   name: 'counter',
   initialState: { value: 0 },
   reducers: {
@@ -129,24 +128,18 @@ function CounterPage() {
       state.value += action.payload
     },
   },
-})`}
-          </pre>
-        </div>
+})`} language="typescript" />
 
         <p style={{ marginTop: '1.5rem' }}>
           <strong>2. 组件中使用</strong>
         </p>
-        <div className="code-block">
-          <pre style={{ margin: 0 }}>
-{`// 读取状态
+        <CodeBlock code={`// 读取状态
 const count = useSelector((state) => state.counter.value)
 
 // 触发 action
 const dispatch = useDispatch()
 dispatch(increment())
-dispatch(incrementByAmount(5))`}
-          </pre>
-        </div>
+dispatch(incrementByAmount(5))`} language="typescript" />
       </div>
     </div>
   )

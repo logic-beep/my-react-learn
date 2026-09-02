@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { SourceCode } from '../components/SourceCode'
+import { CodeBlock } from '../components/CodeBlock'
 
 // -----------------------------------------------------
 // React Router 知识点对应源码快照（精简骨架版）：路由表 / 导航壳 / 404 页，
@@ -116,9 +117,7 @@ function AboutPage() {
 
       <div className="card">
         <h3>🗂️ 数据流总结</h3>
-        <div className="code-block">
-          <pre style={{ margin: 0 }}>
-{`┌─────────────────────────────────────────────┐
+        <CodeBlock code={`┌─────────────────────────────────────────────┐
 │                 Redux 数据流                  │
 ├─────────────────────────────────────────────┤
 │  用户交互 (UI)                                │
@@ -134,9 +133,7 @@ function AboutPage() {
 │  自定义 Hook = useState + useEffect + 逻辑    │
 │  返回: [状态值, 操作函数]                     │
 │  组件中调用 Hook 即可复用状态逻辑              │
-└─────────────────────────────────────────────┘`}
-          </pre>
-        </div>
+└─────────────────────────────────────────────┘`} language="bash" />
       </div>
 
       <div className="card">

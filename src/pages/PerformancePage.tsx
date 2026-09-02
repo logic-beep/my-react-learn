@@ -22,6 +22,7 @@ import {
   useRenderLabel,
 } from '../components/PerfDemos'
 import { SourceCode } from '../components/SourceCode'
+import { CodeBlock } from '../components/CodeBlock'
 
 const HeavyLazyComponent = lazy(() => import('../components/HeavyLazyComponent'))
 
@@ -395,9 +396,7 @@ const UseMemoExpensiveCalc = memo(function UseMemoExpensiveCalc() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>
-          {`// ✅ 缓存昂贵计算
+      <CodeBlock code={`// ✅ 缓存昂贵计算
 const sorted = useMemo(() =>
   [...arr].sort((a,b)=>a-b).slice(0,10)
 , [arr])       // arr 不变，上面不重算
@@ -408,9 +407,7 @@ const style = useMemo(() => ({ color: '#f00' }), [])
 
 // ❌ 不要用在 n*1 这种便宜运算上
 const doubled = useMemo(() => count * 2, [count])
-// ↑ 反模式：memo 本身开销比计算还大`}
-        </pre>
-      </div>
+// ↑ 反模式：memo 本身开销比计算还大`} language="typescript" style={{ marginTop: '1rem' }} />
 
       <SourceCode
         label="UseMemoExpensiveCalc（③ useMemo 示例）"
@@ -976,8 +973,7 @@ const UseDeferredValueDemo = memo(function UseDeferredValueDemo() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>{`// ✅ 最常见模式：搜索框 / 筛选框
+      <CodeBlock code={`// ✅ 最常见模式：搜索框 / 筛选框
 const [query, setQuery] = useState('')
 const deferredQuery = useDeferredValue(query)
 const isStale = query !== deferredQuery  // 陈旧信号
@@ -996,8 +992,7 @@ return (
 // ⚠️ 三兄弟区别一句话总结：
 // startTransition()    → 包裹 setState 动作，无进行中信号
 // useDeferredValue(v)  → 包裹一个值，自带 isStale 信号（v !== dv）
-// useTransition()      → [isPending, startTransition]，显式驱动骨架屏/禁用态`}</pre>
-      </div>
+// useTransition()      → [isPending, startTransition]，显式驱动骨架屏/禁用态`} language="typescript" style={{ marginTop: '1rem' }} />
 
       <SourceCode
         label="UseDeferredValueDemo（⑧ useDeferredValue 示例）"
@@ -1315,8 +1310,7 @@ const UseTransitionDemo = memo(function UseTransitionDemo() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>{`// ✅ useTransition = startTransition + isPending 信号
+      <CodeBlock code={`// ✅ useTransition = startTransition + isPending 信号
 const [isPending, startTransition] = useTransition()
 const [tab, setTab] = useState('daily')
 const [data, setData] = useState(initialData)
@@ -1339,8 +1333,7 @@ return (
 
 // ⚠️ 和 startTransition 的区别：
 // startTransition()         -> 只包裹动作，不知道"进行中"
-// useTransition()[isPending] -> 额外给一个信号量驱动 UI 状态`}</pre>
-      </div>
+// useTransition()[isPending] -> 额外给一个信号量驱动 UI 状态`} language="typescript" style={{ marginTop: '1rem' }} />
 
       <style>{`
         @keyframes skeleton-shimmer {

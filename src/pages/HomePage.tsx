@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAppSelector } from '../store/hooks'
+import { CodeBlock } from '../components/CodeBlock'
 
 function HomePage() {
   const counterValue = useAppSelector((state) => state.counter.value)
@@ -101,9 +102,7 @@ function HomePage() {
 
       <div className="card">
         <h3>📁 项目结构</h3>
-        <div className="code-block">
-          <pre style={{ margin: 0 }}>
-{`src/
+        <CodeBlock code={`src/
 ├── components/         # 可复用组件
 │   ├── ChildDisplay.tsx
 │   ├── ChildInput.tsx
@@ -139,9 +138,7 @@ function HomePage() {
 │       └── user/userSlice.ts
 ├── App.tsx
 ├── main.tsx
-└── index.css`}
-          </pre>
-        </div>
+└── index.css`} language="bash" />
       </div>
     </div>
   )

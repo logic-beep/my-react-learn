@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { SourceCode } from '../components/SourceCode'
+import { CodeBlock } from '../components/CodeBlock'
 import { ThemeProvider } from '../context/ThemeContext'
 import { ChildDisplay } from '../components/ChildDisplay'
 import { ChildInput } from '../components/ChildInput'
@@ -95,9 +96,8 @@ function ComponentCommunicationPage() {
 
       <div className="card">
         <h3>📋 数据流对比图</h3>
-        <div className="code-block">
-          <pre style={{ margin: 0 }}>
-{`┌─────────────────────────────────────────────────────────┐
+        <CodeBlock
+          code={`┌─────────────────────────────────────────────────────────┐
 │              组件数据流向（单向数据流思想）                  │
 ├─────────────────────────────────────────────────────────┤
 │                                                           │
@@ -126,8 +126,8 @@ function ComponentCommunicationPage() {
 │  4. Redux（全局状态，App 级共享）                          │
 │     参见 CounterPage / UserPage 示例                     │
 └─────────────────────────────────────────────────────────┘`}
-          </pre>
-        </div>
+          language="typescript"
+        />
       </div>
       </div>
     </ThemeProvider>
@@ -269,9 +269,8 @@ function ParentChildDemo() {
         <ChildInput onSubmit={handleMessageSubmit} onCountChange={handleCountChange} />
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>
-{`// ─── 父组件 ───
+      <CodeBlock
+        code={`// ─── 父组件 ───
 function Parent() {
   const [message, setMessage] = useState('')
   return (
@@ -294,8 +293,9 @@ function ChildInput({ onSubmit }) {
     </button>
   )
 }`}
-        </pre>
-      </div>
+        language="typescript"
+        style={{ marginTop: '1rem' }}
+      />
 
       <SourceCode label="ParentChildDemo（① Props 传递 + ② 回调函数）" code={PARENT_CHILD_DEMO_SOURCE} />
     </div>
@@ -746,9 +746,8 @@ function ForwardRefDemo() {
         </div>
       </div>
 
-      <div className="code-block" style={{ marginTop: '1rem' }}>
-        <pre style={{ margin: 0 }}>
-{`// ─── 子组件：暴露 Handle 类型 + forwardRef + useImperativeHandle ───
+      <CodeBlock
+        code={`// ─── 子组件：暴露 Handle 类型 + forwardRef + useImperativeHandle ───
 export interface VideoPlayerHandle {
   play: () => void
   pause: () => void
@@ -777,8 +776,9 @@ const videoRef = useRef<VideoPlayerHandle>(null)
 <VideoPlayer ref={videoRef} />
 videoRef.current?.play()        // → 调子组件 play
 videoRef.current?.getCurrentTime()  // → 读子组件数据`}
-        </pre>
-      </div>
+        language="typescript"
+        style={{ marginTop: '1rem' }}
+      />
 
       <SourceCode label="ForwardRefDemo（⑤ forwardRef + useImperativeHandle）" code={FORWARD_REF_DEMO_SOURCE} />
     </div>
