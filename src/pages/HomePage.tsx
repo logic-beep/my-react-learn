@@ -43,8 +43,10 @@ function HomePage() {
 
         <div className="card">
           <h3>⚡ React 性能优化</h3>
-          <p>memo / useCallback / useMemo / key / 虚拟列表 / lazy / startTransition</p>
-          <p className="info-text">7 大优化手段，Before vs After 对比实验</p>
+          <p>
+            memo / useCallback / useMemo / key / 虚拟列表 / lazy / startTransition / useDeferredValue / useTransition
+          </p>
+          <p className="info-text">10 个优化模块，Before vs After 对比实验</p>
           <Link to="/performance">
             <button className="primary">进入示例 →</button>
           </Link>
@@ -103,42 +105,47 @@ function HomePage() {
       <div className="card">
         <h3>📁 项目结构</h3>
         <CodeBlock code={`src/
-├── components/         # 可复用组件
+├── main.tsx                # 入口：StrictMode > Provider > RouterProvider
+├── App.tsx                 # 壳组件：顶部导航 NavLink + <Outlet />
+├── index.css               # 全局样式
+├── router/                 # 路由配置
+│   └── index.tsx
+├── pages/                  # 页面组件（每个路由一页）
+│   ├── HomePage.tsx
+│   ├── BasicHooksPage.tsx
+│   ├── ComponentCommunicationPage.tsx
+│   ├── PerformancePage.tsx
+│   ├── ReactFiberPage.tsx      # 🧬 React 内核原理
+│   ├── HooksPage.tsx
+│   ├── CounterPage.tsx
+│   ├── UserPage.tsx
+│   ├── AboutPage.tsx
+│   └── NotFoundPage.tsx
+├── components/             # 可复用/教学组件
 │   ├── ChildDisplay.tsx
 │   ├── ChildInput.tsx
 │   ├── DeepNestedComponent.tsx
 │   ├── HeavyLazyComponent.tsx
 │   ├── PerfDemos.tsx
-│   └── VideoPlayer.tsx
-├── context/            # Context 定义
+│   ├── VideoPlayer.tsx
+│   ├── CodeBlock.tsx           # 语法高亮代码块
+│   └── SourceCode.tsx          # 「查看源码」折叠块
+├── context/                # Context 定义
 │   └── ThemeContext.tsx
-├── hooks/              # 自定义 Hooks
+├── hooks/                  # 自定义 Hooks
 │   ├── useCounter.ts
 │   ├── useDebounce.ts
 │   ├── useFetch.ts
 │   ├── useLocalStorage.ts
 │   └── useToggle.ts
-├── pages/              # 页面组件
-│   ├── HomePage.tsx
-│   ├── BasicHooksPage.tsx
-│   ├── ComponentCommunicationPage.tsx
-│   ├── PerformancePage.tsx
-│   ├── CounterPage.tsx
-│   ├── HooksPage.tsx
-│   ├── UserPage.tsx
-│   ├── AboutPage.tsx
-│   └── NotFoundPage.tsx
-├── router/             # 路由配置
-│   └── index.tsx
-├── store/              # Redux 状态管理
-│   ├── index.ts
-│   ├── hooks.ts
-│   └── features/
-│       ├── counter/counterSlice.ts
-│       └── user/userSlice.ts
-├── App.tsx
-├── main.tsx
-└── index.css`} language="bash" />
+├── utils/                  # 工具
+│   └── highlight.ts            # highlight.js 配置
+└── store/                  # Redux 状态管理
+    ├── index.ts
+    ├── hooks.ts
+    └── features/
+        ├── counter/counterSlice.ts
+        └── user/userSlice.ts`} language="bash" />
       </div>
     </div>
   )

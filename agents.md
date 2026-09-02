@@ -24,6 +24,7 @@
 | 路由 | react-router-dom **6.26**（`createBrowserRouter` 数据路由） |
 | 状态 | Redux Toolkit 2.2 + react-redux 9（`configureStore` + `createSlice`，Immer 集成） |
 | 样式 | **内联 style + 少量全局 CSS 类**（`src/index.css`），无 CSS Modules / Tailwind / UI 库 |
+| 代码高亮 | highlight.js ^11.12（`src/utils/highlight.ts` 注册 js/ts/tsx/jsx/xml/html/css/json/bash，atom-one-dark 主题） |
 | CI/CD | GitHub Actions → GitHub Pages（`.github/workflows/deploy-pages.yml`），Node 22 |
 
 ## 3. 常用命令
@@ -53,15 +54,19 @@ src/
 │   ├── HomePage / BasicHooksPage / HooksPage
 │   ├── ComponentCommunicationPage / PerformancePage
 │   ├── CounterPage / UserPage / AboutPage / NotFoundPage
+│   └── ReactFiberPage.tsx    #   🧬 React 内核原理（虚拟 DOM / Diff / Fiber / setState），路由 /fiber
 ├── components/               # 可复用/教学组件（多为 named export）
 │   ├── ChildDisplay.tsx      #   memo 子组件（props 浅比较演示）
 │   ├── ChildInput.tsx        #   子→父 回调演示
 │   ├── DeepNestedComponent.tsx   # useContext 深层取数演示
 │   ├── HeavyLazyComponent.tsx    #   default export，仅供 React.lazy 动态引入
 │   ├── PerfDemos.tsx         #   性能演示组件集（见 §8）
-│   └── VideoPlayer.tsx       #   forwardRef + useImperativeHandle 演示
+│   ├── VideoPlayer.tsx       #   forwardRef + useImperativeHandle 演示
+│   ├── CodeBlock.tsx         #   语法高亮代码块（highlight.js，见 §8 / §11）
+│   └── SourceCode.tsx        #   折叠「查看源码」块（highlight.js，见 §8 / §11）
 ├── context/ThemeContext.tsx  # ThemeProvider + useTheme（注意作用域，见 §5）
 ├── hooks/                    # 自定义 Hooks 库（见 §7）
+├── utils/highlight.ts        # highlight.js 配置：注册常用语言 + atom-one-dark 主题
 ├── store/                    # Redux Toolkit（见 §5）
 │   ├── index.ts              #   configureStore + RootState / AppDispatch 类型
 │   ├── hooks.ts              #   useAppDispatch / useAppSelector（typed hooks）
@@ -71,6 +76,7 @@ src/
 - `.codegraph/`：本地工具生成的代码图谱缓存目录（内含 `codegraph.db`），已被其自身
   `.gitignore` 排除，**不是项目源码，不要读取/修改/提交**。
 - `public/`：静态资源（仅 `vite.svg`）。
+- `.npm-cache/`：本机安装依赖时使用的临时 npm 缓存（已在 `.gitignore` 忽略），勿提交。
 
 ## 5. 关键架构约定（改动前必读）
 
@@ -106,7 +112,7 @@ src/
 
 ### 5.5 TypeScript 书写纪律
 - 类型全量标注；避免 `any`；仅类型导入用 `import type { ... }`。
-- 引入新依赖前先确认是否必要（当前仅 react / react-dom / RTK / react-redux / react-router-dom）。
+- 引入新依赖前先确认是否必要（当前依赖：react / react-dom / RTK / react-redux / react-router-dom / highlight.js）。
 - 无路径别名，import 一律用相对路径。
 - `PerformancePage.tsx` 末尾有 `void useEffect`（占位防止未使用导入报错），保持现状。
 
@@ -116,6 +122,9 @@ src/
 `.card` `.grid` `.tag` `.info-text` `.code-block` `.count-display`，
 按钮可用 `.primary`（紫）`.danger`（红）修饰。深色背景 + 主题色 `#646cff` 是主视觉。
 在 `index.css` 追加全局样式可以，但优先复用已有类。
+**展示代码片段请用组件**：页面内"要点讲解"代码块用 `<CodeBlock code language style? />`，
+示例"查看源码"折叠块用 `<SourceCode>`（均基于 `src/utils/highlight.ts` 的 hljs 高亮，
+见 §8/§11）；不要新写裸 `<div className="code-block"><pre>` 结构。
 
 ## 7. 自定义 Hooks API（src/hooks/，改动请保持签名兼容）
 
@@ -134,8 +143,13 @@ src/
   `CallbackButtonMemo`、`TodoList`、`SimpleVirtualList`、`ExpensiveChart`、
   `ExpensiveLeaderboard`、`buildLeaderboardDataSet(seed, size)`。
 - `VideoPlayer.tsx` 导出 `VideoPlayerHandle` 类型 + default `VideoPlayer`。
-- `SourceCode.tsx`（通用「查看源码」折叠块，见 §11）：导出 `SourceCode({ label?, code })`。
-- `BasicHooksPage.tsx` / `PerformancePage.tsx` 内部采用「一文件内多演示小节」的写法
+- `CodeBlock.tsx`（语法高亮代码块）：导出 `CodeBlock({ code, language?, style? })`，
+  内部渲染 `.code-block` + hljs；页面内「要点讲解」代码块一律用它（勿再写裸 code-block div）。
+- `SourceCode.tsx`（通用「查看源码」折叠块，见 §11）：导出 `SourceCode({ label?, code, language? })`，
+  默认折叠、展开后经 hljs 高亮并可一键复制，`language` 默认 `'tsx'`。
+- `ReactFiberPage.tsx`（路由 `/fiber`，🧬 React 内核）：4 个可视化演示小节
+  （① 虚拟 DOM / ② Diff / ③ Fiber / ④ setState），复用 `useRenderLabel` / `SourceCode` / `CodeBlock`。
+- `BasicHooksPage.tsx` / `PerformancePage.tsx` / `ReactFiberPage.tsx` 采用「一文件内多演示小节」的写法
   （`// ===` 分隔注释），教学演示可沿用同款组织方式。
 
 ## 9. 部署与 GitHub Actions（一般不用动）
@@ -158,14 +172,18 @@ src/
 需求背景：学习者希望看到每个示例「对应的 demo 代码」，而不只是运行效果；
 同时演示源码应**精简可读**（骨架化），避免把整份样式/包装/依赖文件贴出来淹没重点。
 
-- 通用组件：`src/components/SourceCode.tsx`，导出 `SourceCode({ label?, code })`——
-  默认折叠的 📄 查看源码块，展开后可一键复制。直接放进演示组件的卡片底部即可。
+- 通用组件：`src/components/SourceCode.tsx`，导出 `SourceCode({ label?, code, language? })`——
+  默认折叠的 📄 查看源码块，展开后经 hljs 高亮并可一键复制，`language` 默认 `'tsx'`。
+  直接放进演示组件的卡片底部即可。
 - **快照是人工维护的静态字符串**（当前方案，非 `?raw`/`toString`）：
   在演示组件上方的模块级常量（如 `USESTATE_DEMO_SOURCE`）中存放骨架源码副本，
   页面里用 `<SourceCode label="XxxDemo" code={XXX_SOURCE} />` 引用。
 - **覆盖范围**：已接入全部示例页——`BasicHooksPage`（5）/ `HooksPage`（5）/
-  `ComponentCommunicationPage`（4）/ `PerformancePage`（9 + ⑧ useDeferredValue 自带 1）/
-  `CounterPage`（1）/ `UserPage`（1）/ `AboutPage`（React Router 知识点 1）。
+  `ComponentCommunicationPage`（4）/ `PerformancePage`（10：编号 ①~⑩，依次为 React.memo、
+  useCallback、useMemo、key、虚拟列表、React.lazy、startTransition、useDeferredValue、
+  useTransition、ExpensiveChart 综合观察）/
+  `CounterPage`（1）/ `UserPage`（1）/ `AboutPage`（React Router 知识点 1）/
+  `ReactFiberPage`（4：虚拟 DOM / Diff / Fiber / setState）。
   新增示例或演示页面时请同样加上快照块。
 - **骨架快照口径**（与 BasicHooksPage 等页面现状保持一致）：
   - 保留**核心教学内容**：hook/state 调用、事件处理、条件渲染、关键注释、可读的中文文案/emoji；

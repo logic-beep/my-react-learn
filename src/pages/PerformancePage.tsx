@@ -51,6 +51,7 @@ function PerformancePage() {
             { t: '⑦ startTransition', d: '保持 UI 响应不卡输入框', c: '#06b6d4' },
             { t: '⑧ useDeferredValue', d: '值延迟更新 + isStale 陈旧反馈', c: '#f43f5e' },
             { t: '⑨ useTransition', d: 'startTransition + isPending 骨架屏', c: '#8b5cf6' },
+            { t: '⑩ ExpensiveChart', d: 'memo/useMemo 综合观察图表重渲染', c: '#94a3b8' },
           ].map((x) => (
             <div
               key={x.t}
@@ -1358,7 +1359,7 @@ const SUSPENSE_RENDER_COUNT_DEMO_SOURCE = `const SuspenseRenderCountDemo = memo(
 
   return (
     <div>
-      <h3>⑧ ExpensiveChart + memo / useMemo 综合观察</h3>
+      <h3>⑩ ExpensiveChart + memo / useMemo 综合观察</h3>
       <p>
         模拟图表组件首次渲染要生成 1500 个 span 点；配合 memo，只有当传入的 label 真的变了才重画。
         点击「改不相关 state」看看它会不会重新计算。
@@ -1400,7 +1401,7 @@ export const ExpensiveChart = memo(
 )`
 
 // =========================================================
-// ⑧ ExpensiveChart 综合观察 memo/useMemo
+// ⑩ ExpensiveChart 综合观察 memo/useMemo
 // =========================================================
 const SuspenseRenderCountDemo = memo(function SuspenseRenderCountDemo() {
   const [label, setLabel] = useState('A')
@@ -1408,7 +1409,7 @@ const SuspenseRenderCountDemo = memo(function SuspenseRenderCountDemo() {
   const renderTag = useRenderLabel('Suspense父组件')
   return (
     <div className="card">
-      <h3>⑧ ExpensiveChart + memo / useMemo 综合观察</h3>
+      <h3>⑩ ExpensiveChart + memo / useMemo 综合观察</h3>
       <p className="info-text" style={{ marginTop: 0 }}>
         模拟图表组件首次渲染要生成 1500 个 span 点。配合 memo 只有当传入的 label 真变了才重画。
         点击「改不相关 state」看看它会不会重新计算。
@@ -1425,7 +1426,7 @@ const SuspenseRenderCountDemo = memo(function SuspenseRenderCountDemo() {
       <ExpensiveChart label={label} />
 
       <SourceCode
-        label="SuspenseRenderCountDemo（⑧ ExpensiveChart 观察）"
+        label="SuspenseRenderCountDemo（⑩ ExpensiveChart 观察）"
         code={SUSPENSE_RENDER_COUNT_DEMO_SOURCE}
       />
     </div>
