@@ -9,10 +9,9 @@ import {
 } from '../store/features/counter/counterSlice'
 
 // -----------------------------------------------------
-// CounterPage 演示卡片源码快照：供第一张卡片底部「查看源码」折叠块展示。
-// ⚠️ 若修改了页面中第一张演示卡片的逻辑/UI，请同步更新这里的字符串内容。
+// ⚠️ 快照为便于对照学习的精简骨架（已省略样式/包装/长文案与完整依赖文件）；修改上方演示卡片的真实逻辑时请同步更新。
 // -----------------------------------------------------
-const COUNTERPAGE_DEMO_SOURCE = `// 📄 上方演示卡片的实际代码（节选自 src/pages/CounterPage.tsx，整理为独立示例形态）
+const COUNTERPAGE_DEMO_SOURCE = `// 📄 上方演示卡片的精简骨架（节选自 src/pages/CounterPage.tsx，整理为独立示例形态；已省略样式/包装/长文案）
 
 function CounterDemo() {
   const count = useAppSelector((state) => state.counter.value)
@@ -20,58 +19,29 @@ function CounterDemo() {
   const [incrementAmount, setIncrementAmount] = useState(5)
 
   return (
-    <div className="card">
-      <h2>🔢 Redux Toolkit 计数器</h2>
-      <p className="info-text">
-        此示例展示了 Redux Toolkit 的核心用法：createSlice、configureStore、useDispatch、useSelector
-      </p>
+    <div>
+      <strong>{count}</strong>
 
-      <div className="count-display">{count}</div>
+      <button onClick={() => dispatch(decrement())}>- 1</button>
+      <button onClick={() => dispatch(increment())}>+ 1</button>
+      <button onClick={() => dispatch(reset())}>重置</button>
 
-      <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-        <button className="primary" onClick={() => dispatch(decrement())}>
-          - 1
-        </button>
-        <button onClick={() => dispatch(increment())}>
-          + 1
-        </button>
-        <button className="danger" onClick={() => dispatch(reset())}>
-          重置
-        </button>
-      </div>
-
-      <div style={{ textAlign: 'center' }}>
-        <input
-          type="number"
-          value={incrementAmount}
-          onChange={(e) => setIncrementAmount(Number(e.target.value))}
-          style={{ width: '100px', textAlign: 'center' }}
-        />
-        <button
-          className="primary"
-          onClick={() => dispatch(incrementByAmount(incrementAmount))}
-        >
-          + {incrementAmount}
-        </button>
-      </div>
+      <input
+        type="number"
+        value={incrementAmount}
+        onChange={(e) => setIncrementAmount(Number(e.target.value))}
+      />
+      <button onClick={() => dispatch(incrementByAmount(incrementAmount))}>
+        + {incrementAmount}
+      </button>
     </div>
   )
 }
 
-// ─── 配套源码（完整文件）：src/store/features/counter/counterSlice.ts ───
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-interface CounterState {
-  value: number
-}
-
-const initialState: CounterState = {
-  value: 0,
-}
-
+// ─── 关键节选（完整实现见 src/store/features/counter/counterSlice.ts）───
 const counterSlice = createSlice({
   name: 'counter',
-  initialState,
+  initialState: { value: 0 },
   reducers: {
     increment: (state) => {
       state.value += 1
@@ -88,28 +58,12 @@ const counterSlice = createSlice({
   },
 })
 
-export const { increment, decrement, incrementByAmount, reset } = counterSlice.actions
-export default counterSlice.reducer
-
-// ─── 配套源码（完整文件）：src/store/index.ts ───
-import { configureStore } from '@reduxjs/toolkit'
-import counterReducer from './features/counter/counterSlice'
-import userReducer from './features/user/userSlice'
-
-export const store = configureStore({
-  reducer: {
-    counter: counterReducer,
-    user: userReducer,
-  },
+// ─── 关键节选（完整实现见 src/store/index.ts）───
+const store = configureStore({
+  reducer: { counter: counterReducer, user: userReducer },
 })
 
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
-
-// ─── 配套源码（完整文件）：src/store/hooks.ts ───
-import { useDispatch, useSelector } from 'react-redux'
-import type { RootState, AppDispatch } from '../store'
-
+// ─── 关键节选（完整实现见 src/store/hooks.ts）───
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
 export const useAppSelector = useSelector.withTypes<RootState>()`
 

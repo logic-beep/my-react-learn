@@ -8,25 +8,22 @@ import {
 import { SourceCode } from '../components/SourceCode'
 
 // -----------------------------------------------------
-// UserPage 第一张演示卡片源码快照：供卡片底部「查看源码」折叠块展示。
-// ⚠️ 若修改了下方演示卡片的逻辑/UI 或相关 store 源码，请同步更新这里的字符串内容。
+// UserPage 第一张演示卡片源码快照（精简骨架）：供卡片底部「查看源码」折叠块展示。
+// ⚠️ 快照为便于对照学习的精简骨架（已省略样式/包装/长文案与完整依赖文件）；修改上方演示卡片的真实逻辑时请同步更新。
 // -----------------------------------------------------
-const USERPAGE_DEMO_SOURCE = `// 📄 上方演示卡片的实际代码（节选自 src/pages/UserPage.tsx，整理为独立示例形态）
+const USERPAGE_DEMO_SOURCE = `// 📄 上方演示卡片的精简骨架（节选自 src/pages/UserPage.tsx：真实状态流转与交互逻辑保留，样式/包装/长文案已省略）
 function UserDemo() {
   const user = useAppSelector((state) => state.user)
   const dispatch = useAppDispatch()
-
   const [loginName, setLoginName] = useState('')
   const [loginAge, setLoginAge] = useState('')
   const [newName, setNewName] = useState('')
-
   const handleLogin = () => {
     if (!loginName || !loginAge) return
     dispatch(setUser({ name: loginName, age: Number(loginAge) }))
     setLoginName('')
     setLoginAge('')
   }
-
   const handleUpdateName = () => {
     if (!newName) return
     dispatch(updateName(newName))
@@ -34,99 +31,29 @@ function UserDemo() {
   }
 
   return (
-    <div className="card">
-      <h2>👤 用户状态管理（Redux + Hooks 综合示例）</h2>
-
-      <div
-        style={{
-          padding: '1rem',
-          backgroundColor: user.isLoggedIn ? '#22c55e22' : '#333',
-          borderRadius: '8px',
-          marginBottom: '1.5rem',
-          border: \`1px solid \${user.isLoggedIn ? '#22c55e' : '#555'}\`,
-        }}
-      >
-        <h3 style={{ marginTop: 0 }}>当前用户状态</h3>
-        <p>
-          <strong>登录状态：</strong>
-          <span className={user.isLoggedIn ? 'tag' : 'tag'}>
-            {user.isLoggedIn ? '✅ 已登录' : '❌ 未登录'}
-          </span>
-        </p>
-        <p>
-          <strong>用户名：</strong>
-          <span className="tag">{user.name || '(未设置)'}</span>
-        </p>
-        <p>
-          <strong>年龄：</strong>
-          <span className="tag">{user.age || '(未设置)'}</span>
-        </p>
-      </div>
-
+    <div>
+      <p><strong>登录状态：</strong>{user.isLoggedIn ? '✅ 已登录' : '❌ 未登录'}</p>
+      <p><strong>用户名：</strong>{user.name || '(未设置)'}</p>
+      <p><strong>年龄：</strong>{user.age || '(未设置)'}</p>
       {!user.isLoggedIn ? (
         <div>
-          <h3>🔐 用户登录</h3>
-          <input
-            type="text"
-            placeholder="输入用户名"
-            value={loginName}
-            onChange={(e) => setLoginName(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="输入年龄"
-            value={loginAge}
-            onChange={(e) => setLoginAge(e.target.value)}
-            style={{ width: '120px' }}
-          />
-          <button
-            className="primary"
-            onClick={handleLogin}
-            disabled={!loginName || !loginAge}
-          >
-            登录
-          </button>
+          <input type="text" placeholder="输入用户名" value={loginName} onChange={(e) => setLoginName(e.target.value)} />
+          <input type="number" placeholder="输入年龄" value={loginAge} onChange={(e) => setLoginAge(e.target.value)} />
+          <button onClick={handleLogin} disabled={!loginName || !loginAge}>登录</button>
         </div>
       ) : (
         <div>
-          <h3>✏️ 修改用户名</h3>
-          <input
-            type="text"
-            placeholder="输入新用户名"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-          <button
-            className="primary"
-            onClick={handleUpdateName}
-            disabled={!newName}
-          >
-            更新名字
-          </button>
-          <button className="danger" onClick={() => dispatch(logout())}>
-            🚪 退出登录
-          </button>
+          <input type="text" placeholder="输入新用户名" value={newName} onChange={(e) => setNewName(e.target.value)} />
+          <button onClick={handleUpdateName} disabled={!newName}>更新名字</button>
+          <button onClick={() => dispatch(logout())}>🚪 退出登录</button>
         </div>
       )}
     </div>
   )
 }
 
-// ─── 配套源码（完整文件）：src/store/features/user/userSlice.ts ───
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-interface UserState {
-  name: string
-  age: number
-  isLoggedIn: boolean
-}
-
-const initialState: UserState = {
-  name: '',
-  age: 0,
-  isLoggedIn: false,
-}
-
+// ─── 关键节选（完整实现见 src/store/features/user/userSlice.ts）───
+const initialState = { name: '', age: 0, isLoggedIn: false } // 初始三字段：name / age / isLoggedIn
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -146,31 +73,8 @@ const userSlice = createSlice({
     },
   },
 })
-
 export const { setUser, logout, updateName } = userSlice.actions
-export default userSlice.reducer
-
-// ─── 配套源码（完整文件）：src/store/index.ts ───
-import { configureStore } from '@reduxjs/toolkit'
-import counterReducer from './features/counter/counterSlice'
-import userReducer from './features/user/userSlice'
-
-export const store = configureStore({
-  reducer: {
-    counter: counterReducer,
-    user: userReducer,
-  },
-})
-
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
-
-// ─── 配套源码（完整文件）：src/store/hooks.ts ───
-import { useDispatch, useSelector } from 'react-redux'
-import type { RootState, AppDispatch } from '../store'
-
-export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
-export const useAppSelector = useSelector.withTypes<RootState>()`
+export default userSlice.reducer`
 
 function UserPage() {
   const user = useAppSelector((state) => state.user)

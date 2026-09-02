@@ -153,21 +153,34 @@ src/
 4. 需要浏览器验证时用 `npm run dev`，注意 StrictMode 双执行特性。
 5. 涉及教学内容的取舍拿不准时，先说明影响再动手，不要静默删除演示型代码。
 
-## 11. 页面示例的「查看源码」折叠块（试点约定）
+## 11. 页面示例的「查看源码」折叠块（快照约定）
 
-需求背景：学习者希望看到每个示例「对应的 demo 代码」，而不只是运行效果。
+需求背景：学习者希望看到每个示例「对应的 demo 代码」，而不只是运行效果；
+同时演示源码应**精简可读**（骨架化），避免把整份样式/包装/依赖文件贴出来淹没重点。
 
 - 通用组件：`src/components/SourceCode.tsx`，导出 `SourceCode({ label?, code })`——
   默认折叠的 📄 查看源码块，展开后可一键复制。直接放进演示组件的卡片底部即可。
 - **快照是人工维护的静态字符串**（当前方案，非 `?raw`/`toString`）：
-  在演示组件上方的模块级常量（如 `USESTATE_DEMO_SOURCE`）中存放该组件源码副本，
+  在演示组件上方的模块级常量（如 `USESTATE_DEMO_SOURCE`）中存放骨架源码副本，
   页面里用 `<SourceCode label="XxxDemo" code={XXX_SOURCE} />` 引用。
-- **同步义务**：修改任一演示组件的逻辑/UI 时，必须同步更新其源码快照常量，
-  否则「查看源码」与实际行为不一致。快照顶部已放 ⚠️ 提醒注释。
+- **覆盖范围**：已接入全部示例页——`BasicHooksPage`（5）/ `HooksPage`（5）/
+  `ComponentCommunicationPage`（4）/ `PerformancePage`（9 + ⑧ useDeferredValue 自带 1）/
+  `CounterPage`（1）/ `UserPage`（1）/ `AboutPage`（React Router 知识点 1）。
+  新增示例或演示页面时请同样加上快照块。
+- **骨架快照口径**（与 BasicHooksPage 等页面现状保持一致）：
+  - 保留**核心教学内容**：hook/state 调用、事件处理、条件渲染、关键注释、可读的中文文案/emoji；
+  - 删除**装饰噪音**：全部内联 `style={{…}}`、`className`、纯布局包装 div/span、
+    长 info-text 说明（可压缩为一行注释）；每例只保留 1 个主标题元素；
+  - 依赖文件（hooks / components / slices / context 等）**不再整份贴入**：
+    只保留与本例直接相关的「关键节选」（3~10 行核心），并以单行注释标注来源，
+    如 `// ─── 关键节选（完整实现见 src/components/VideoPlayer.tsx）───`；
+    其余大段 UI 用 `// …` 表示省略；
+  - 单组件多示例页（`HooksPage`/`CounterPage`/`UserPage`）用「独立骨架小函数」形态呈现，
+    首行加 `// 📄 …（节选自 src/pages/XxxPage.tsx，整理为骨架形态）`，不改页面结构。
+- **同步义务**：骨架快照与真实代码**核心逻辑一致**；修改演示的 state/事件/API 时必须同步更新，
+  仅样式/文案展示层面的变化无需同步。快照常量上方已放 ⚠️ 提醒注释。
 - 快照书写规则：以普通 template literal 存放；快照内若出现反引号或 `${`，
-  需转义为 `` \` `` 与 `\${`；为简洁可省略卡片内的「要点讲解 code-block」与
-  SourceCode 自身，其余逻辑与 JSX 建议保持与真实代码一致。
-- **试点状态**：`BasicHooksPage.tsx` 已完成 5 个示例（useState/useEffect/useCallback/
-  useMemo/useRef）。若后续推广到 `HooksPage` / `ComponentCommunicationPage` /
-  `PerformancePage` / `CounterPage` / `UserPage` 等，复制同一模式并在 §8 说明即可。
+  需转义为 `` \` `` 与 `\${`；若真实代码含反斜杠转义/正则（如 `/\/$/`），需写成 `\\` 以防被模板吞掉；
+  骨架内容建议用字符串拼接代替模板串，尽量做到零反引号、零 `${`，可省去转义。
+  快照一律省略卡片内的「要点讲解 code-block」与 SourceCode 自身。
 

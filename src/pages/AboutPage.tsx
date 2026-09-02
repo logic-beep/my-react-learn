@@ -2,169 +2,68 @@ import { Link } from 'react-router-dom'
 import { SourceCode } from '../components/SourceCode'
 
 // -----------------------------------------------------
-// React Router 知识点对应源码快照（路由表 / 导航壳 / 404 页）：
-// 对应真实文件：src/router/index.tsx、src/App.tsx、src/pages/NotFoundPage.tsx，
-// 供下方「🛣️ React Router 核心用法」卡片底部「查看源码」折叠块展示。
-// ⚠️ 若修改了上述任一真实源码文件，请同步更新这里的字符串内容。
+// React Router 知识点对应源码快照（精简骨架版）：路由表 / 导航壳 / 404 页，
+// 对应真实文件：src/router/index.tsx、src/App.tsx、src/pages/NotFoundPage.tsx。
+// ⚠️ 快照为便于对照学习的精简骨架（已省略样式/壳层/长注释）；若路由表或导航结构变化，请同步更新。
 // -----------------------------------------------------
-const ABOUT_ROUTER_SOURCE = `// ─── 完整源码：src/router/index.tsx ───
-// ===== src/router/index.tsx =====
+const ABOUT_ROUTER_SOURCE = `// 📄 React Router 知识点对应的真实代码节选（便于对照学习，样式/壳层已省略）
+// ─── 关键节选（完整实现见 src/router/index.tsx）───
 import { createBrowserRouter } from 'react-router-dom'
 import App from '../App'
-import HomePage from '../pages/HomePage'
-import CounterPage from '../pages/CounterPage'
-import HooksPage from '../pages/HooksPage'
-import UserPage from '../pages/UserPage'
-import NotFoundPage from '../pages/NotFoundPage'
-import AboutPage from '../pages/AboutPage'
-import BasicHooksPage from '../pages/BasicHooksPage'
-import ComponentCommunicationPage from '../pages/ComponentCommunicationPage'
-import PerformancePage from '../pages/PerformancePage'
-
-const basename = import.meta.env.BASE_URL.replace(/\\/$/, '')
-
+// …其余 10 个页面组件均为静态 import（element 引用的组件名与真实文件一致）…
+const basename = import.meta.env.BASE_URL.replace(/\\/$/, '') // 去掉末尾 '/'，兼容 GH Pages 子路径部署
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/', // 根路由：App 为导航壳组件，各页面挂在 children 下
     element: <App />,
     children: [
-      {
-        index: true,
-        element: <HomePage />,
-      },
-      {
-        path: 'basic-hooks',
-        element: <BasicHooksPage />,
-      },
-      {
-        path: 'hooks',
-        element: <HooksPage />,
-      },
-      {
-        path: 'communication',
-        element: <ComponentCommunicationPage />,
-      },
-      {
-        path: 'performance',
-        element: <PerformancePage />,
-      },
-      {
-        path: 'counter',
-        element: <CounterPage />,
-      },
-      {
-        path: 'user',
-        element: <UserPage />,
-      },
-      {
-        path: 'about',
-        element: <AboutPage />,
-      },
-      {
-        path: '*',
-        element: <NotFoundPage />,
-      },
+      { index: true, element: <HomePage /> }, // index: true → 子路由的默认首页
+      { path: 'basic-hooks', element: <BasicHooksPage /> },
+      { path: 'hooks', element: <HooksPage /> },
+      { path: 'communication', element: <ComponentCommunicationPage /> },
+      { path: 'performance', element: <PerformancePage /> },
+      { path: 'fiber', element: <ReactFiberPage /> },
+      { path: 'counter', element: <CounterPage /> },
+      { path: 'user', element: <UserPage /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: '*', element: <NotFoundPage /> }, // 通配符路由 → 404 页兜底
     ],
   },
-], {
-  basename,
-})
-// ─── 完整源码：src/App.tsx ───
-// ===== src/App.tsx =====
-import { NavLink, Outlet } from 'react-router-dom'
+], { basename })
 
+// ─── 关键节选（完整实现见 src/App.tsx）───
+import { NavLink, Outlet } from 'react-router-dom'
 function App() {
   return (
     <div>
-      <h1 style={{ textAlign: 'center', color: '#646cff' }}>
-        React 学习工程 🚀
-      </h1>
-      <p style={{ textAlign: 'center', color: '#888', marginBottom: '2rem' }}>
-        Vite + React + TypeScript + Redux + React Router
-      </p>
-
+      <h1>React 学习工程 🚀</h1>
       <nav>
-        <NavLink
-          to="/"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-          end
-        >
-          🏠 首页
-        </NavLink>
-        <NavLink
-          to="/basic-hooks"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
-          🧠 基础 Hooks
-        </NavLink>
-        <NavLink
-          to="/hooks"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
-          🪝 自定义 Hooks
-        </NavLink>
-        <NavLink
-          to="/communication"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
-          📢 组件交互
-        </NavLink>
-        <NavLink
-          to="/performance"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
-          ⚡ 性能优化
-        </NavLink>
-        <NavLink
-          to="/counter"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
-          🔢 Redux 计数器
-        </NavLink>
-        <NavLink
-          to="/user"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
-          👤 用户管理
-        </NavLink>
-        <NavLink
-          to="/about"
-          className={({ isActive }) => (isActive ? 'active' : '')}
-        >
-          📖 关于
-        </NavLink>
+        <NavLink to="/" end>🏠 首页</NavLink>
+        <NavLink to="/basic-hooks">🧠 基础 Hooks</NavLink>
+        <NavLink to="/fiber">🧬 React 内核</NavLink>
+        {/* …其余导航链接省略，均与路由表 path 一一对应… */}
       </nav>
-
       <main>
-        <Outlet />
+        <Outlet /> {/* 子路由页面渲染位置 */}
       </main>
     </div>
   )
 }
-
 export default App
-// ─── 完整源码：src/pages/NotFoundPage.tsx ───
-// ===== src/pages/NotFoundPage.tsx =====
-import { Link, useNavigate } from 'react-router-dom'
 
+// ─── 关键节选（完整实现见 src/pages/NotFoundPage.tsx）───
+import { Link, useNavigate } from 'react-router-dom'
 function NotFoundPage() {
   const navigate = useNavigate()
-
   return (
-    <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-      <div style={{ fontSize: '8rem', margin: 0, color: '#646cff' }}>404</div>
+    <div>
       <h2>页面未找到</h2>
-      <p className="info-text" style={{ marginBottom: '2rem' }}>
-        抱歉，您访问的页面不存在
-      </p>
-      <Link to="/">
-        <button className="primary">🏠 返回首页</button>
-      </Link>
+      <p>抱歉，您访问的页面不存在</p>
+      <Link to="/">🏠 返回首页</Link>
       <button onClick={() => navigate(-1)}>⬅️ 返回上一页</button>
     </div>
   )
 }
-
 export default NotFoundPage
 `
 
